@@ -46,4 +46,6 @@ list(APPEND STATIC_LIBS weechat_gui_common)
 
 if(ENABLE_NCURSES)
   subdirs(curses)
+else()
+  subdirs(headless)
 endif()
