@@ -98,6 +98,7 @@ gui_bar_window_objects_free (struct t_gui_bar_window *bar_window)
 void
 gui_bar_window_create_win (struct t_gui_bar_window *bar_window)
 {
+    return;
     if (!bar_window
         || CONFIG_BOOLEAN(bar_window->bar->options[GUI_BAR_OPTION_HIDDEN]))
     {
@@ -408,6 +409,7 @@ void
 gui_bar_window_draw (struct t_gui_bar_window *bar_window,
                      struct t_gui_window *window)
 {
+    return;
     int x, y, items_count, num_lines, line;
     enum t_gui_bar_filling filling;
     char *content, **items;

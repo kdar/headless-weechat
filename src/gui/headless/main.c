@@ -4,127 +4,103 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
+#include "../core/wee-command.h"
 #include "../core/wee-hook.h"
+#include "../core/wee-log.h"
+#include "../core/wee-string.h"
+#include "../core/wee-utf8.h"
+#include "../core/wee-util.h"
+#include "../core/wee-version.h"
 #include "../core/weechat.h"
-#include "../gui-color.h"
+#include "../gui-bar-item.h"
+#include "../gui-bar.h"
+#include "../gui-buffer.h"
+#include "../gui-chat.h"
+#include "../gui-cursor.h"
+#include "../gui-filter.h"
+#include "../gui-history.h"
+#include "../gui-hotlist.h"
+#include "../gui-input.h"
+#include "../gui-layout.h"
+#include "../gui-line.h"
+#include "../gui-main.h"
+#include "../gui-nicklist.h"
+#include "../gui-window.h"
 
-void headless_main_init() { printf("INIT\n"); }
+void gui_main_init() {
+  struct t_gui_buffer *ptr_buffer;
+  char title[256];
 
-void headless_main_end(int clean_exit) { printf("END\n"); }
+  /* create core buffer */
+  ptr_buffer =
+      gui_buffer_new(NULL, GUI_BUFFER_MAIN, NULL, NULL, NULL, NULL, NULL, NULL);
+  if (ptr_buffer) {
+    gui_init_ok = 1;
 
-void gui_window_objects_print_log(struct t_gui_window *window) {}
-int gui_window_get_width() { return 0; }
-int gui_window_get_height() { return 0; }
-void gui_window_set_title() { printf("gui_window_set_title\n"); }
-void gui_bar_window_create_win() { printf("gui_bar_window_create_win\n"); }
-void gui_bar_window_draw() { printf("gui_bar_window_draw\n"); }
-void gui_bar_window_objects_free() { printf("gui_bar_window_objects_free\n"); }
-void gui_bar_window_objects_init() { printf("gui_bar_window_objects_init\n"); }
-void gui_bar_window_objects_print_log() {
-  printf("gui_bar_window_objects_print_log\n");
-}
-void gui_chat_string_next_char() { printf("gui_chat_string_next_char\n"); }
-int gui_color_assign(int *color, char const *color_name) {
-  printf("gui_color_assign\n");
-  return 0;
-}
-int gui_color_assign_by_diff(int *color, const char *color_name, int diff) {
-  printf("gui_color_assign_by_diff\n");
-  return 0;
-}
-void gui_color_buffer_assign() { printf("gui_color_buffer_assign\n"); }
-void gui_color_buffer_display() { printf("gui_color_buffer_display\n"); }
-void gui_color_buffer_open() { printf("gui_color_buffer_open\n"); }
-void gui_color_display_terminal_colors() {
-  printf("gui_color_display_terminal_colors\n");
-}
-void gui_color_dump() { printf("gui_color_dump\n"); }
-void gui_color_free_vars() { printf("gui_color_free_vars\n"); }
+    ptr_buffer->num_displayed = 1;
 
-// void gui_color_get_name() {printf("gui_color_get_name\n");}
-const char *gui_color_get_name(int num_color) { return "white"; }
+    /* set short name */
+    if (!ptr_buffer->short_name)
+      ptr_buffer->short_name = strdup(GUI_BUFFER_MAIN);
 
-int gui_color_get_term_colors() {
-  printf("gui_color_get_term_colors\n");
-  return 0;
-}
-int gui_color_get_weechat_colors_number() {
-  printf("gui_color_get_weechat_colors_number\n");
-  return 0;
-}
-void gui_color_info_term_colors(char *buffer, int size) {
-  printf("gui_color_info_term_colors\n");
-}
-void gui_color_init_weechat() { printf("gui_color_init_weechat\n"); }
-void gui_color_palette_build_aliases() {
-  printf("gui_color_palette_build_aliases\n");
-}
-void gui_color_palette_free(struct t_gui_color_palette *color_palette) {
-  printf("gui_color_palette_free\n");
+    /* set title for core buffer */
+    snprintf(title, sizeof(title), "WeeChat %s %s - %s", version_get_version(),
+             WEECHAT_COPYRIGHT_DATE, WEECHAT_WEBSITE);
+    gui_buffer_set_title(ptr_buffer, title);
+
+    if (gui_window_new(NULL, ptr_buffer, 0, 0, 80, 25, 100, 100)) {
+      gui_current_window = gui_windows;
+    }
+  }
 }
 
-struct t_gui_color_palette *gui_color_palette_new(int number,
-                                                  const char *value) {
-  printf("gui_color_palette_new\n");
+void gui_main_end(int clean_exit) {}
+
+void gui_main_debug_libs() {}
+void gui_main_get_password(const char **prompt, char *password, int size) {}
+
+void gui_main_refreshs()
+{
+    struct t_gui_buffer *ptr_buffer;
+
+    /* compute max length for prefix/buffer if needed */
+    for (ptr_buffer = gui_buffers; ptr_buffer;
+         ptr_buffer = ptr_buffer->next_buffer)
+    {
+        /* compute buffer/prefix max length for own_lines */
+        if (ptr_buffer->own_lines)
+        {
+            if (ptr_buffer->own_lines->buffer_max_length_refresh)
+            {
+                gui_line_compute_buffer_max_length (ptr_buffer,
+                                                    ptr_buffer->own_lines);
+            }
+            if (ptr_buffer->own_lines->prefix_max_length_refresh)
+                gui_line_compute_prefix_max_length (ptr_buffer->own_lines);
+        }
+
+        /* compute buffer/prefix max length for mixed_lines */
+        if (ptr_buffer->mixed_lines)
+        {
+            if (ptr_buffer->mixed_lines->buffer_max_length_refresh)
+            {
+                gui_line_compute_buffer_max_length (ptr_buffer,
+                                                    ptr_buffer->mixed_lines);
+            }
+            if (ptr_buffer->mixed_lines->prefix_max_length_refresh)
+                gui_line_compute_prefix_max_length (ptr_buffer->mixed_lines);
+        }
+    }
 }
 
-void gui_color_reset_pairs() { printf("gui_color_reset_pairs\n"); }
-int gui_color_search(const char *color_name) { return -1; }
-void gui_color_switch_colors() { printf("gui_color_switch_colors\n"); }
-void gui_key_default_bindings() { printf("gui_key_default_bindings\n"); }
-void gui_main_debug_libs() { printf("gui_main_debug_libs\n"); }
-void gui_main_end() { printf("gui_main_end\n"); }
-void gui_main_get_password() { printf("gui_main_get_password\n"); }
-void gui_mouse_disable() { printf("gui_mouse_disable\n"); }
-void gui_mouse_display_state() { printf("gui_mouse_display_state\n"); }
-void gui_mouse_enable() { printf("gui_mouse_enable\n"); }
-void gui_mouse_event_end() { printf("gui_mouse_event_end\n"); }
-void gui_mouse_event_init() { printf("gui_mouse_event_init\n"); }
-void gui_mouse_grab_init() { printf("gui_mouse_grab_init\n"); }
-void gui_term_set_eat_newline_glitch() {
-  printf("gui_term_set_eat_newline_glitch\n");
-}
-void gui_window_balance() { printf("gui_window_balance\n"); }
-void gui_window_bare_display_toggle() {
-  printf("gui_window_bare_display_toggle\n");
-}
-void gui_window_merge() { printf("gui_window_merge\n"); }
-void gui_window_merge_all() { printf("gui_window_merge_all\n"); }
-void gui_window_move_cursor() { printf("gui_window_move_cursor\n"); }
-void gui_window_objects_free() { printf("gui_window_objects_free\n"); }
-void gui_window_objects_init() { printf("gui_window_objects_init\n"); }
-void gui_window_page_down() { printf("gui_window_page_down\n"); }
-void gui_window_page_up() { printf("gui_window_page_up\n"); }
-void gui_window_resize() { printf("gui_window_resize\n"); }
-void gui_window_resize_delta() { printf("gui_window_resize_delta\n"); }
-void gui_window_scroll_beyond_end() {
-  printf("gui_window_scroll_beyond_end\n");
-}
-void gui_window_scroll_bottom() { printf("gui_window_scroll_bottom\n"); }
-void gui_window_scroll_down() { printf("gui_window_scroll_down\n"); }
-void gui_window_scroll_top() { printf("gui_window_scroll_top\n"); }
-void gui_window_scroll_up() { printf("gui_window_scroll_up\n"); }
-void gui_window_set_bracketed_paste_mode() {
-  printf("gui_window_set_bracketed_paste_mode\n");
-}
-void gui_window_split_horizontal() { printf("gui_window_split_horizontal\n"); }
-void gui_window_split_vertical() { printf("gui_window_split_vertical\n"); }
-void gui_window_swap() { printf("gui_window_swap\n"); }
-void gui_window_switch() { printf("gui_window_switch\n"); }
-void gui_window_switch_down() { printf("gui_window_switch_down\n"); }
-void gui_window_switch_left() { printf("gui_window_switch_left\n"); }
-void gui_window_switch_right() { printf("gui_window_switch_right\n"); }
-void gui_window_switch_to_buffer() { printf("gui_window_switch_to_buffer\n"); }
-void gui_window_switch_up() { printf("gui_window_switch_up\n"); }
-void gui_window_term_display_infos() {
-  printf("gui_window_term_display_infos\n");
-}
-
-void headless_loop() {
+void gui_main_loop() {
   while (!weechat_quit) {
     /* execute timer hooks */
     hook_timer_exec();
+
+    gui_main_refreshs();
 
     /* execute fd hooks */
     hook_fd_exec();
@@ -133,7 +109,7 @@ void headless_loop() {
     hook_process_exec();
 
     /* handle signals received */
-    if (weechat_quit_signal & (SIGHUP | SIGQUIT | SIGTERM) > 0) {
+    if ((weechat_quit_signal & (SIGHUP | SIGQUIT | SIGTERM)) > 0) {
       weechat_quit_signal = 0;
       weechat_quit = 1;
     }
@@ -141,11 +117,9 @@ void headless_loop() {
 }
 
 int main(int argc, char *argv[]) {
-  weechat_init(argc, argv, &headless_main_init);
-
-  headless_loop();
-
-  weechat_end(&headless_main_end);
+  weechat_init(argc, argv, &gui_main_init);
+  gui_main_loop();
+  weechat_end(&gui_main_end);
 
   return EXIT_SUCCESS;
 }

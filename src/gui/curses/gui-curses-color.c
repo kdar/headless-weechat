@@ -121,6 +121,7 @@ int gui_color_timer = 0;                      /* timer in seconds           */
 int
 gui_color_search (const char *color_name)
 {
+    return 0;
     int i;
 
     for (i = 0; gui_weechat_colors[i].string; i++)
@@ -167,6 +168,9 @@ gui_color_get_extended_attrs (int color)
 int
 gui_color_assign (int *color, const char *color_name)
 {
+    *color = 0;
+    return 1;
+
     int flag, extra_attr, color_index, number;
     char *error;
 
@@ -226,6 +230,8 @@ gui_color_assign (int *color, const char *color_name)
 int
 gui_color_assign_by_diff (int *color, const char *color_name, int diff)
 {
+    *color = 0;
+    return 1;
     int index, list_size;
     struct t_weelist_item *ptr_item;
     const char *name;
@@ -272,6 +278,7 @@ gui_color_assign_by_diff (int *color, const char *color_name, int diff)
 int
 gui_color_get_weechat_colors_number ()
 {
+    return 1;
     return GUI_CURSES_NUM_WEECHAT_COLORS;
 }
 
@@ -282,6 +289,7 @@ gui_color_get_weechat_colors_number ()
 int
 gui_color_get_term_colors ()
 {
+    return 1;
     return gui_color_term_colors;
 }
 
@@ -461,6 +469,7 @@ gui_color_weechat_get_pair (int weechat_color)
 const char *
 gui_color_get_name (int num_color)
 {
+    return "white";
     static char color[16][64];
     static int index_color = 0;
     char str_attr[8];
@@ -699,6 +708,7 @@ gui_color_init_pairs_weechat ()
 void
 gui_color_display_terminal_colors ()
 {
+    return;
     int lines, line, col, color;
     char str_line[1024], str_color[64];
 
@@ -792,6 +802,7 @@ gui_color_info_term_colors (char *buffer, int size)
 void
 gui_color_buffer_display ()
 {
+    return;
     int y, i, lines, line, col, color, max_color, num_items;
     char str_line[1024], str_color[64], str_rgb[64], **items;
     struct t_gui_color_palette *color_palette;
@@ -1189,6 +1200,7 @@ gui_color_buffer_close_cb (const void *pointer, void *data,
 void
 gui_color_buffer_assign ()
 {
+    return;
     if (!gui_color_buffer)
     {
         gui_color_buffer = gui_buffer_search_by_name (NULL,
@@ -1208,6 +1220,7 @@ gui_color_buffer_assign ()
 void
 gui_color_buffer_open ()
 {
+    return;
     if (!gui_color_buffer)
     {
         gui_color_buffer = gui_buffer_new (

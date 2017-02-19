@@ -1,0 +1,1 @@
+void gui_term_set_eat_newline_glitch(int value) {}
